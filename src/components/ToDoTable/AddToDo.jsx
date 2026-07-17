@@ -3,14 +3,15 @@ import { useRef } from "react";
 const AddToDo = ({ toDoData, setToDoData }) => {
   const nameRef = useRef();
 
-  const handelSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const reminderName = nameRef.current.value;
+    const taskName = nameRef.current.value;
 
-    const newData = [...toDoData, { task: reminderName }];
+    const newData = [...toDoData, { task: taskName }];
 
-    localStorage.setItem("todos", JSON.stringify(newData));
+    // Storage Optimization: Removed manual localStorage call
+    // since the parent Home.jsx component handles this automatically.
     setToDoData(newData);
 
     nameRef.current.value = "";
@@ -18,7 +19,7 @@ const AddToDo = ({ toDoData, setToDoData }) => {
 
   return (
     <form
-      onSubmit={handelSubmit}
+      onSubmit={handleSubmit}
       className="mb-4 p-2.5 rounded-2xl bg-gray-700 flex flex-col sm:flex-row gap-2 lg:gap-0"
     >
       <input

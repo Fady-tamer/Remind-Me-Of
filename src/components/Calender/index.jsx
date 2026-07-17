@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   format,
   addMonths,
@@ -13,13 +13,25 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const Calendar = ({ width, reminderData }) => {
+const Calendar = ({ width = "w-full", reminderData = [] }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
   const onDateClick = (day) => setSelectedDate(day);
+
+  // 1. Performance Optimization: Group reminders by date once per render
+  const remindersByDate = useMemo(() => {
+    const map = {};
+    reminderData.forEach((reminder) => {
+      if (!map[reminder.date]) {
+        map[reminder.date] = [];
+      }
+      map[reminder.date].push(reminder);
+    });
+    return map;
+  }, [reminderData]);
 
   const renderHeader = () => {
     return (
@@ -54,7 +66,6 @@ const Calendar = ({ width, reminderData }) => {
           key={i}
           className="text-center font-bold text-gray-500 py-1.5 text-xs sm:text-sm"
         >
-          {/* Display 'S', 'M', 'T' on mobile and 'Sun', 'Mon', 'Tue' on larger screens */}
           <span className="hidden xs:inline">{format(dateObj, "EEE")}</span>
           <span className="xs:hidden">{format(dateObj, "EEEEE")}</span>
         </div>,
@@ -77,17 +88,15 @@ const Calendar = ({ width, reminderData }) => {
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
         formattedDate = format(day, "d");
-
         const dateKey = format(day, "yyyy-MM-dd");
         const cloneDay = day;
 
-        const dailyReminders = reminderData.filter(
-          (reminder) => reminder.date === dateKey,
-        );
+        // O(1) Map lookup instead of O(N) Array filtering
+        const dailyReminders = remindersByDate[dateKey] || [];
 
         days.push(
           <div
-            key={day}
+            key={dateKey} // 2. React Key Fix: using formatted string instead of Date object
             onClick={() => onDateClick(cloneDay)}
             className={`p-1 min-h-15 sm:min-h-21.25 flex flex-col items-center justify-between sm:justify-start rounded-xl cursor-pointer transition-all duration-200 border border-gray-100/50 select-none
               ${
@@ -114,8 +123,8 @@ const Calendar = ({ width, reminderData }) => {
             <div className="w-full flex flex-wrap sm:flex-col gap-1 justify-center items-center mt-auto sm:mt-1 px-0.5 overflow-hidden">
               {dailyReminders.map(
                 ({ task, color, timeFrom, timeTo }, index) => (
-                  <React.Fragment key={index}>
-                    {/* Desktop layout: Full badge */}
+                  <React.Fragment key={`${dateKey}-${index}`}>
+                    {/* Desktop layout */}
                     <div
                       style={{ backgroundColor: color }}
                       className="hidden sm:block text-white px-1 py-0.5 rounded w-full truncate text-center shadow-sm text-[10px] font-medium"
@@ -124,7 +133,7 @@ const Calendar = ({ width, reminderData }) => {
                       {task}
                     </div>
 
-                    {/* Mobile layout: Dot indicator */}
+                    {/* Mobile layout */}
                     <div
                       style={{ backgroundColor: color }}
                       className="block sm:hidden w-1.5 h-1.5 rounded-full shadow-sm"
@@ -139,7 +148,7 @@ const Calendar = ({ width, reminderData }) => {
         day = addDays(day, 1);
       }
       rows.push(
-        <div className="grid grid-cols-7 gap-1" key={day}>
+        <div className="grid grid-cols-7 gap-1" key={day.toString()}>
           {days}
         </div>,
       );

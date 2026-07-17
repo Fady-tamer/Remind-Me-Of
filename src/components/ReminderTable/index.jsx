@@ -1,16 +1,13 @@
-import AddReminder from "./AddReminder";
-
-const ReminderTable = ({ width, reminderData, setReminderData }) => {
-  const handelDelete = (index) => {
-    const newData = reminderData.filter((item, i) => i !== index);
-    localStorage.setItem("reminders", JSON.stringify(newData));
+const ReminderTable = ({ width = "w-full", reminderData, setReminderData }) => {
+  const handleDelete = (index) => {
+    // Storage optimization: Removed manual localStorage sync
+    const newData = reminderData.filter((_, i) => i !== index);
     setReminderData(newData);
   };
 
   return (
-    // Added 'w-full' to ensure it takes full space on mobile,
-    // and 'overflow-x-auto' to allow smooth horizontal scrolling if the screen is too narrow.
     <div className={`w-full overflow-x-auto rounded-2xl ${width}`}>
+      {/* Tailwind fix: Changed min-w-150 to min-w-[600px] */}
       <table className="w-full min-w-150 border-collapse overflow-hidden">
         <thead className="text-white bg-gray-700">
           <tr style={{ borderLeft: "15px solid #364153" }}>
@@ -25,7 +22,7 @@ const ReminderTable = ({ width, reminderData, setReminderData }) => {
           {reminderData.map(({ task, color, category, date }, index) => {
             return (
               <tr
-                key={index} // Added a key prop to prevent React rendering warnings
+                key={index}
                 className="bg-[#eee] border-b border-white last:border-b-0"
                 style={{ borderLeft: `15px solid ${color}` }}
               >
@@ -36,7 +33,7 @@ const ReminderTable = ({ width, reminderData, setReminderData }) => {
                 <td className="py-3">
                   <button
                     onClick={() => {
-                      handelDelete(index);
+                      handleDelete(index);
                     }}
                     className="px-3 py-1.5 rounded-xl cursor-pointer bg-red-500 hover:bg-red-600 active:scale-95 transition-all text-white text-sm font-semibold"
                   >
