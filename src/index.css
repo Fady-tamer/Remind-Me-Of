@@ -1,18 +1,38 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
-@media (max-width: 576px ) {
-    *{
-        font-size: 16px;
-    }
+/* ── Base ────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background-color: #d6d6d6;
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
-@media (max-width: 768px ) {
-    *{
-        font-size: 18px;
-    }
+
+/* ── Custom Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c4b5e0; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #8951d7; }
+
+/* (sidebar active styles are now handled inline in Sidebar component) */
+
+/* ── Page enter animation ─────────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-@media (min-width: 769px ) {
-    *{
-        font-size: 20px;
-        font-weight: bold;
-    }
+.page-enter {
+  animation: fadeSlideUp 0.3s ease both;
 }
+
+/* ── Container ───────────────────────────────────────────────────────── */
+.container {
+  @apply lg:mx-30 rounded-2xl;
+}
+
+/* ── Priority badge colours ──────────────────────────────────────────── */
+.priority-low    { background: #dcfce7; color: #15803d; }
+.priority-medium { background: #fef9c3; color: #a16207; }
+.priority-high   { background: #fee2e2; color: #b91c1c; }
